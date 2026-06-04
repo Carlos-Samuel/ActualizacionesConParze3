@@ -505,6 +505,16 @@ function generarReporteInventario(int $id_bitacora, string $mode): bool {
                 'descuento' => (int)$desc,
             ];
 
+            // Fila base: mismo ProCod sin sufijo de presentación, con los valores de la unidad base
+            if ($undequ == 1) {
+                $current[$procod] = [
+                    'code'      => $procod,
+                    'qty'       => (int)$qty,
+                    'costo'     => $costo === null ? 0 : (int)$costo,
+                    'descuento' => (int)$desc,
+                ];
+            }
+
         }
 
         registrar_paso($conParam, $id_bitacora, 'Termina estado actual, inicial cargar reporte previo');
