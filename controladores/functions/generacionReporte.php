@@ -149,7 +149,7 @@ function obtenerProductosPorCodigo(
                 p.ProNom as pronom,
                 p.SubId as subid,
                 CAST(tpp.proprecio AS UNSIGNED) AS proprecio,
-                CAST(pp.undequ AS UNSIGNED) AS undequ
+                (u.undnom = p.ProUnd) AS es_unidad_base
             FROM productos p
             JOIN tbl_prodprecio tpp ON tpp.proid = p.ProId
             JOIN prodpresen pp ON pp.proid = p.ProId AND pp.undid = tpp.undid
@@ -205,9 +205,9 @@ function obtenerProductosPorCodigo(
             'pronom'     => isset($row['pronom']) ? (string)$row['pronom'] : null,
             'subid'      => isset($row['subid']) ? (int)$row['subid'] : null,
             'proprecio'  => isset($row['proprecio']) ? (float)$row['proprecio'] : null,
-            'procod'     => isset($row['procod']) ? (string)$row['procod'] : '',
-            'procod_env' => isset($row['procod_env']) ? (string)$row['procod_env'] : null,
-            'undequ'     => isset($row['undequ']) ? (string)$row['undequ'] : '',
+            'procod'        => isset($row['procod']) ? (string)$row['procod'] : '',
+            'procod_env'    => isset($row['procod_env']) ? (string)$row['procod_env'] : null,
+            'es_unidad_base' => !empty($row['es_unidad_base']),
         ];
     }
     $res->free();
@@ -486,10 +486,10 @@ function generarReporteInventario(int $id_bitacora, string $mode): bool {
             $subId = $presentacion['subid'] ?? 0;
             $costo = $presentacion['proprecio'] ?? 0;
             $procod = $presentacion['procod'] ?? 0;
-            $undequ = $presentacion['undequ'] ?? 0;
+            $esUnidadBase = $presentacion['es_unidad_base'] ?? false;
 
             $qty = 0;
-            if ($undequ == 1){
+            if ($esUnidadBase){
                 $qty = $cantidadPorProducto[$procod] ?? 0;
             }
 
@@ -506,7 +506,7 @@ function generarReporteInventario(int $id_bitacora, string $mode): bool {
             ];
 
             // Fila base: mismo ProCod sin sufijo de presentación, con los valores de la unidad base
-            if ($undequ == 1) {
+            if ($esUnidadBase) {
                 $current[$procod] = [
                     'code'      => $procod,
                     'qty'       => (int)$qty,
